@@ -1,493 +1,363 @@
-// Main JavaScript for Flexia Premium NG
+/**
+ * main.js – Flexia Premium NG
+ * Premium Grid Layout + Animated Hamburger
+ */
 
-// Wait for DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Flexia Premium NG - Page Loaded');
-    
-    // ===== Loading Screen =====
+
+    // ---- LOADING ----
     const loadingScreen = document.getElementById('loadingScreen');
     if (loadingScreen) {
-        setTimeout(() => {
+        setTimeout(function() {
             loadingScreen.style.opacity = '0';
-            setTimeout(() => {
-                loadingScreen.style.display = 'none';
-            }, 500);
-        }, 1000);
+            setTimeout(function() { loadingScreen.style.display = 'none'; }, 500);
+        }, 800);
     }
 
-    // ===== Mobile Menu Toggle =====
-    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    // ---- ANIMATED HAMBURGER ----
+    const hamburger = document.getElementById('hamburgerBtn');
     const navLinks = document.getElementById('navLinks');
-    const navLinkItems = document.querySelectorAll('.nav-link');
-    
-    if (mobileMenuBtn && navLinks) {
-        mobileMenuBtn.addEventListener('click', function(e) {
+
+    if (hamburger && navLinks) {
+        hamburger.addEventListener('click', function(e) {
             e.stopPropagation();
+            this.classList.toggle('active');
             navLinks.classList.toggle('active');
-            const icon = this.querySelector('i');
-            
-            if (navLinks.classList.contains('active')) {
-                icon.classList.remove('fa-bars');
-                icon.classList.add('fa-times');
-                document.body.style.overflow = 'hidden';
-            } else {
-                icon.classList.remove('fa-times');
-                icon.classList.add('fa-bars');
-                document.body.style.overflow = '';
-            }
+            document.body.style.overflow = navLinks.classList.contains('active') ? 'hidden' : '';
         });
 
-        // Close menu when clicking outside
         document.addEventListener('click', function(e) {
-            if (!navLinks.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+            if (!navLinks.contains(e.target) && !hamburger.contains(e.target)) {
+                hamburger.classList.remove('active');
                 navLinks.classList.remove('active');
-                mobileMenuBtn.querySelector('i').classList.remove('fa-times');
-                mobileMenuBtn.querySelector('i').classList.add('fa-bars');
                 document.body.style.overflow = '';
             }
         });
 
-        // Close menu when clicking ESC key
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
+                hamburger.classList.remove('active');
                 navLinks.classList.remove('active');
-                mobileMenuBtn.querySelector('i').classList.remove('fa-times');
-                mobileMenuBtn.querySelector('i').classList.add('fa-bars');
                 document.body.style.overflow = '';
             }
         });
     }
 
-    // ===== Add Mobile Chat Button =====
-    function addMobileChatButton() {
-        const navLinks = document.getElementById('navLinks');
-        if (navLinks) {
-            const mobileChatBtn = document.createElement('a');
-            mobileChatBtn.href = 'https://chat-3zot.onrender.com';
-            mobileChatBtn.target = '_blank';
-            mobileChatBtn.rel = 'noopener';
-            mobileChatBtn.className = 'chat-support-btn mobile-chat-btn';
-            mobileChatBtn.innerHTML = `
-                <i class="fas fa-headset"></i>
-                <span>Chat with Customer Support</span>
-            `;
-            navLinks.appendChild(mobileChatBtn);
-        }
-    }
-    
-    addMobileChatButton();
+    // ---- IoT DASHBOARD ----
+    let iotChart = null;
+    let iotData = {
+        earnings: 52850,
+        games: 78,
+        team: 92,
+        health: 100,
+        history: [12000, 18000, 25000, 32000, 42000, 48500, 52850]
+    };
 
-    // ===== Update active nav link on scroll =====
-    function updateActiveNavLink() {
-        const sections = document.querySelectorAll('section[id]');
-        const navLinks = document.querySelectorAll('.nav-link:not(.btn-register)');
-        
-        let currentSection = '';
-        const scrollPos = window.scrollY + 100;
-        
-        sections.forEach(section => {
-            const sectionTop = section.offsetTop;
-            const sectionHeight = section.clientHeight;
-            
-            if (scrollPos >= sectionTop && scrollPos < sectionTop + sectionHeight) {
-                currentSection = section.id;
+    function updateIoTValues() {
+        const el = document.getElementById('iotEarnings');
+        if (el) el.textContent = '₦' + iotData.earnings.toLocaleString();
+        const el2 = document.getElementById('iotGames');
+        if (el2) el2.textContent = iotData.games + '%';
+        const el3 = document.getElementById('iotTeam');
+        if (el3) el3.textContent = iotData.team + '%';
+        const el4 = document.getElementById('iotHealth');
+        if (el4) el4.textContent = iotData.health + '%';
+    }
+
+    function initIoTChart() {
+        const ctx = document.getElementById('iotChart');
+        if (!ctx) return;
+        if (iotChart) iotChart.destroy();
+
+        iotChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Day 1', 'Day 7', 'Day 14', 'Day 17', 'Day 21', 'Day 25', 'Day 30'],
+                datasets: [{
+                    label: 'Earnings (₦)',
+                    data: iotData.history,
+                    borderColor: '#06B6D4',
+                    backgroundColor: 'rgba(6, 182, 212, 0.04)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#06B6D4',
+                    pointRadius: 3,
+                    pointBorderColor: 'rgba(6, 182, 212, 0.20)',
+                    pointBorderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#94A3B8',
+                            font: { size: 10, family: 'Inter' },
+                            boxWidth: 12,
+                            padding: 12
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { color: 'rgba(255,255,255,0.03)', drawBorder: false },
+                        ticks: { color: '#64748B', font: { size: 9, family: 'Inter' } }
+                    },
+                    y: {
+                        grid: { color: 'rgba(255,255,255,0.03)', drawBorder: false },
+                        ticks: {
+                            color: '#64748B',
+                            font: { size: 9, family: 'Inter' },
+                            callback: function(v) { return '₦' + v.toLocaleString(); }
+                        }
+                    }
+                }
             }
         });
-        
-        navLinks.forEach(link => {
+        updateIoTValues();
+    }
+
+    function openIoT() {
+        const modal = document.getElementById('iotModal');
+        if (!modal) return;
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        setTimeout(initIoTChart, 150);
+    }
+
+    function closeIoT() {
+        const modal = document.getElementById('iotModal');
+        if (!modal) return;
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    const iotMenuBtn = document.getElementById('iotMenuBtn');
+    if (iotMenuBtn) {
+        iotMenuBtn.addEventListener('click', function(e) { e.preventDefault();
+            openIoT(); });
+    }
+
+    const iotFooterBtn = document.getElementById('iotFooterBtn');
+    if (iotFooterBtn) {
+        iotFooterBtn.addEventListener('click', function(e) { e.preventDefault();
+            openIoT(); });
+    }
+
+    const iotClose = document.getElementById('iotModalClose');
+    if (iotClose) {
+        iotClose.addEventListener('click', closeIoT);
+    }
+
+    const iotModal = document.getElementById('iotModal');
+    if (iotModal) {
+        iotModal.addEventListener('click', function(e) {
+            if (e.target === this) closeIoT();
+        });
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const modal = document.getElementById('iotModal');
+            if (modal && modal.classList.contains('active')) closeIoT();
+        }
+    });
+
+    // ---- IoT CONTROLS ----
+    const refreshBtn = document.getElementById('iotRefresh');
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', function() {
+            iotData.earnings += Math.floor(Math.random() * 350);
+            iotData.games = 70 + Math.floor(Math.random() * 28);
+            iotData.team = 85 + Math.floor(Math.random() * 14);
+            iotData.health = 95 + Math.floor(Math.random() * 5);
+            iotData.history.push(iotData.earnings);
+            if (iotData.history.length > 7) iotData.history.shift();
+            updateIoTValues();
+            initIoTChart();
+            showNotification('IoT data refreshed', 'success');
+        });
+    }
+
+    const exportBtn = document.getElementById('iotExport');
+    if (exportBtn) {
+        exportBtn.addEventListener('click', function() {
+            showNotification('Report exported successfully', 'success');
+        });
+    }
+
+    const notifyBtn = document.getElementById('iotNotify');
+    if (notifyBtn) {
+        notifyBtn.addEventListener('click', function() {
+            showNotification('Alerts configured successfully', 'success');
+        });
+    }
+
+    // ---- NOTIFICATION ----
+    function showNotification(message, type) {
+        const el = document.createElement('div');
+        const bg = type === 'success' ? 'rgba(6, 182, 212, 0.08)' : 'rgba(79, 70, 229, 0.08)';
+        const border = type === 'success' ? 'rgba(6, 182, 212, 0.20)' : 'rgba(79, 70, 229, 0.20)';
+        el.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${bg};
+            backdrop-filter: blur(16px);
+            border: 1px solid ${border};
+            border-radius: 8px;
+            padding: 10px 18px;
+            color: #F1F5F9;
+            font-weight: 500;
+            font-size: 0.8rem;
+            z-index: 99999;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.40);
+            animation: slideIn 0.3s ease;
+            max-width: 340px;
+            font-family: 'Inter', sans-serif;
+        `;
+        el.textContent = message;
+        document.body.appendChild(el);
+
+        setTimeout(function() {
+            el.style.opacity = '0';
+            el.style.transform = 'translateX(40px)';
+            setTimeout(function() { if (el.parentNode) el.remove(); }, 400);
+        }, 2800);
+    }
+
+    // ---- APK DOWNLOAD ----
+    function handleApkDownload(e) {
+        e.preventDefault();
+        const link = document.createElement('a');
+        link.href = './flexia-app.apk';
+        link.download = 'Flexia-Premium-App-v2.0.1.apk';
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        setTimeout(function() { if (link.parentNode) link.remove(); }, 200);
+        showNotification('Downloading Flexia App (1.6MB)', 'success');
+    }
+
+    const apkButtons = document.querySelectorAll(
+        '#navApkBtn, #heroApkBtn, #mainApkBtn, #ctaApkBtn, #footerApkBtn'
+    );
+    apkButtons.forEach(function(btn) {
+        if (btn) btn.addEventListener('click', handleApkDownload);
+    });
+
+    // ---- FAQ ----
+    const faqItems = document.querySelectorAll('.faq-item');
+    faqItems.forEach(function(item) {
+        const q = item.querySelector('.faq-q');
+        if (q) {
+            q.addEventListener('click', function() {
+                const isActive = item.classList.contains('active');
+                faqItems.forEach(function(other) { other.classList.remove('active'); });
+                if (!isActive) item.classList.add('active');
+            });
+        }
+    });
+
+    // ---- BACK TO TOP ----
+    const backTop = document.getElementById('backToTop');
+    if (backTop) {
+        window.addEventListener('scroll', function() {
+            backTop.classList.toggle('visible', window.pageYOffset > 300);
+        });
+        backTop.addEventListener('click', function() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    }
+
+    // ---- SMOOTH SCROLL ----
+    document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
+        anchor.addEventListener('click', function(e) {
+            const href = this.getAttribute('href');
+            if (href === '#') return;
+            const target = document.querySelector(href);
+            if (target) {
+                e.preventDefault();
+                if (navLinks && navLinks.classList.contains('active')) {
+                    hamburger.classList.remove('active');
+                    navLinks.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+                window.scrollTo({ top: target.offsetTop - 72, behavior: 'smooth' });
+            }
+        });
+    });
+
+    // ---- URGENCY ----
+    const urgencySpan = document.querySelector('#urgencyNote span');
+    if (urgencySpan) {
+        let slots = 87;
+        setInterval(function() {
+            if (slots > 0) {
+                slots -= Math.floor(Math.random() * 2);
+                if (slots < 0) slots = 0;
+                urgencySpan.textContent = 'Only ' + slots + ' premium slots left at ₦8,000';
+                if (slots < 10) {
+                    const note = document.getElementById('urgencyNote');
+                    if (note) note.style.animation = 'pulse 0.8s infinite';
+                }
+            }
+        }, 45000);
+    }
+
+    // ---- NAV ACTIVE ----
+    function updateActiveNav() {
+        const sections = document.querySelectorAll('section[id]');
+        let current = '';
+        const scrollPos = window.scrollY + 80;
+        sections.forEach(function(section) {
+            const top = section.offsetTop;
+            const height = section.clientHeight;
+            if (scrollPos >= top && scrollPos < top + height) {
+                current = section.id;
+            }
+        });
+        document.querySelectorAll('.nav-link:not(.register-link)').forEach(function(link) {
             link.classList.remove('active');
-            if (link.getAttribute('href') === `#${currentSection}`) {
+            if (link.getAttribute('href') === '#' + current) {
                 link.classList.add('active');
             }
         });
     }
-    
-    window.addEventListener('scroll', updateActiveNavLink);
-    updateActiveNavLink(); // Initial call
 
-    // ===== Earnings Calculator Functionality =====
-    function initCalculator() {
-        const dailyTasksSlider = document.getElementById('dailyTasks');
-        const gameEarningsSlider = document.getElementById('gameEarnings');
-        const referralsSlider = document.getElementById('referrals');
-        
-        const tasksEarningsElement = document.getElementById('tasksEarnings');
-        const gameEarningsElement = document.getElementById('gameEarningsResult');
-        const referralEarningsElement = document.getElementById('referralEarnings');
-        const totalEarningsElement = document.getElementById('totalEarnings');
-        
-        const dailyTasksValue = document.getElementById('dailyTasksValue');
-        const gameEarningsValue = document.getElementById('gameEarningsValue');
-        const referralsValue = document.getElementById('referralsValue');
-        
-        function formatCurrency(amount) {
-            return '₦' + amount.toLocaleString('en-NG');
-        }
-        
-        function updateCalculator() {
-            const dailyTasks = parseInt(dailyTasksSlider.value);
-            const gameEarnings = parseInt(gameEarningsSlider.value);
-            const referrals = parseInt(referralsSlider.value);
-            
-            // Calculate earnings
-            const tasksEarnings = dailyTasks * 150; // ₦150 per day
-            const gameEarningsTotal = (gameEarnings * 200) * 30; // ₦200 per apple, 30 days
-            const referralEarnings = referrals * 7500; // ₦7,500 per referral
-            const totalEarnings = tasksEarnings + gameEarningsTotal + referralEarnings;
-            
-            // Update display values
-            tasksEarningsElement.textContent = formatCurrency(tasksEarnings);
-            gameEarningsElement.textContent = formatCurrency(gameEarningsTotal);
-            referralEarningsElement.textContent = formatCurrency(referralEarnings);
-            totalEarningsElement.textContent = formatCurrency(totalEarnings);
-            
-            // Update slider value displays
-            dailyTasksValue.textContent = dailyTasks + ' days';
-            gameEarningsValue.textContent = gameEarnings + ' apples/day';
-            referralsValue.textContent = referrals + ' referrals';
-            
-            // Animate numbers
-            animateValue(tasksEarningsElement, tasksEarnings);
-            animateValue(gameEarningsElement, gameEarningsTotal);
-            animateValue(referralEarningsElement, referralEarnings);
-            animateValue(totalEarningsElement, totalEarnings);
-        }
-        
-        function animateValue(element, finalValue) {
-            const currentText = element.textContent.replace('₦', '').replace(/,/g, '');
-            const currentValue = parseInt(currentText) || 0;
-            
-            if (currentValue === finalValue) return;
-            
-            const duration = 500;
-            const startTime = Date.now();
-            const startValue = currentValue;
-            
-            function update() {
-                const elapsed = Date.now() - startTime;
-                const progress = Math.min(elapsed / duration, 1);
-                const current = Math.floor(startValue + (finalValue - startValue) * progress);
-                
-                element.textContent = '₦' + current.toLocaleString('en-NG');
-                
-                if (progress < 1) {
-                    requestAnimationFrame(update);
-                }
-            }
-            
-            requestAnimationFrame(update);
-        }
-        
-        // Add event listeners to sliders
-        [dailyTasksSlider, gameEarningsSlider, referralsSlider].forEach(slider => {
-            if (slider) {
-                slider.addEventListener('input', updateCalculator);
-                slider.addEventListener('change', updateCalculator);
-            }
+    window.addEventListener('scroll', updateActiveNav);
+    updateActiveNav();
+
+    // ---- VIDEO FALLBACK ----
+    const heroVideo = document.querySelector('.hero-video');
+    const heroFallback = document.querySelector('.hero-fallback');
+    if (heroVideo && heroFallback) {
+        heroVideo.addEventListener('error', function() {
+            this.style.display = 'none';
+            heroFallback.style.display = 'block';
         });
-        
-        // Initial calculation
-        if (dailyTasksSlider && gameEarningsSlider && referralsSlider) {
-            updateCalculator();
-        }
-    }
-    
-    initCalculator();
-
-    // ===== FAQ Accordion =====
-    function initFAQAccordion() {
-        const faqItems = document.querySelectorAll('.faq-item');
-        
-        faqItems.forEach(item => {
-            const question = item.querySelector('.faq-question');
-            
-            if (question) {
-                question.addEventListener('click', function() {
-                    // Close all other items
-                    faqItems.forEach(otherItem => {
-                        if (otherItem !== item && otherItem.classList.contains('active')) {
-                            otherItem.classList.remove('active');
-                        }
-                    });
-                    
-                    // Toggle current item
-                    item.classList.toggle('active');
-                });
-            }
-        });
-    }
-    
-    initFAQAccordion();
-
-    // ===== Back to Top Button =====
-    function initBackToTop() {
-        const backToTopBtn = document.getElementById('backToTop');
-        
-        if (backToTopBtn) {
-            window.addEventListener('scroll', function() {
-                if (window.pageYOffset > 300) {
-                    backToTopBtn.classList.add('visible');
-                } else {
-                    backToTopBtn.classList.remove('visible');
-                }
-            });
-            
-            backToTopBtn.addEventListener('click', function() {
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                });
-            });
-        }
-    }
-    
-    initBackToTop();
-
-    // ===== Smooth scrolling for anchor links =====
-    function initSmoothScroll() {
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                const targetId = this.getAttribute('href');
-                
-                if (targetId === '#' || targetId === '#!') {
-                    return;
-                }
-                
-                const targetElement = document.querySelector(targetId);
-                
-                if (targetElement) {
-                    e.preventDefault();
-                    
-                    // Close mobile menu if open
-                    if (navLinks && navLinks.classList.contains('active')) {
-                        navLinks.classList.remove('active');
-                        if (mobileMenuBtn) {
-                            mobileMenuBtn.querySelector('i').classList.remove('fa-times');
-                            mobileMenuBtn.querySelector('i').classList.add('fa-bars');
-                        }
-                        document.body.style.overflow = '';
-                    }
-                    
-                    window.scrollTo({
-                        top: targetElement.offsetTop - 80,
-                        behavior: 'smooth'
-                    });
-                }
-            });
-        });
-    }
-    
-    initSmoothScroll();
-
-    // ===== Animate elements on scroll =====
-    function initScrollAnimations() {
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
-        
-        const observer = new IntersectionObserver(function(entries) {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('animate');
-                }
-            });
-        }, observerOptions);
-        
-        // Observe elements to animate
-        document.querySelectorAll('.value-card, .testimonial-card, .calculator-container, .faq-item, .earning-item').forEach(el => {
-            observer.observe(el);
-        });
-        
-        // Hero animation
-        setTimeout(() => {
-            document.querySelector('.hero-logo')?.classList.add('animate');
-            document.querySelector('.hero-title')?.classList.add('animate');
-            document.querySelector('.hero-subtitle')?.classList.add('animate');
-        }, 300);
-    }
-    
-    initScrollAnimations();
-
-    // ===== Urgency Timer (Countdown) =====
-    function initUrgencyTimer() {
-        const urgencyNote = document.getElementById('urgencyNote');
-        
-        if (urgencyNote) {
-            let slotsLeft = 87;
-            const urgencyText = urgencyNote.querySelector('span');
-            
-            // Update every 30 seconds (for demo)
-            setInterval(() => {
-                if (slotsLeft > 0) {
-                    slotsLeft--;
-                    
-                    // Random fluctuation for realism
-                    if (Math.random() > 0.7 && slotsLeft > 10) {
-                        slotsLeft += Math.floor(Math.random() * 3);
-                    }
-                    
-                    if (slotsLeft < 0) slotsLeft = 0;
-                    
-                    if (urgencyText) {
-                        urgencyText.textContent = `Only ${slotsLeft} premium slots left at ₦8,000 price`;
-                    }
-                    
-                    // Change color when slots are low
-                    if (slotsLeft < 10) {
-                        urgencyNote.style.background = 'rgba(255, 101, 132, 0.2)';
-                        urgencyNote.style.color = '#FF6584';
-                        urgencyNote.style.animation = 'pulse 1s infinite';
-                    }
-                    
-                    // Blink when very low
-                    if (slotsLeft < 5) {
-                        urgencyNote.style.animation = 'pulse 0.5s infinite';
-                    }
-                }
-            }, 30000); // Update every 30 seconds
-        }
-    }
-    
-    initUrgencyTimer();
-
-    // ===== Image error handling =====
-    function handleImageErrors() {
-        document.querySelectorAll('img').forEach(img => {
-            img.addEventListener('error', function() {
-                if (this.classList.contains('logo') || this.classList.contains('hero-logo-img')) {
-                    this.src = 'https://placehold.co/120/6C63FF/FFFFFF?text=FP';
-                } else if (this.classList.contains('testimonial-avatar')) {
-                    const name = this.alt.split(' ')[0] || 'User';
-                    this.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`;
-                }
-            });
-        });
-    }
-    
-    handleImageErrors();
-
-    // ===== Video fallback handling =====
-    function handleVideoFallback() {
-        const heroVideo = document.querySelector('.hero-video');
-        const heroFallback = document.querySelector('.hero-fallback');
-        
-        if (heroVideo && heroFallback) {
-            heroVideo.addEventListener('error', function() {
-                this.style.display = 'none';
+        if (heroVideo.readyState >= 3) {
+            heroVideo.play().catch(function() {
+                heroVideo.style.display = 'none';
                 heroFallback.style.display = 'block';
             });
-            
-            // Check if video can play
-            if (heroVideo.readyState >= 3) {
-                heroVideo.play().catch(() => {
-                    heroVideo.style.display = 'none';
-                    heroFallback.style.display = 'block';
-                });
-            }
         }
     }
-    
-    handleVideoFallback();
 
-    // ===== Performance optimization =====
-    // Debounce function for scroll/resize events
-    function debounce(func, wait) {
-        let timeout;
-        return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-        };
-    }
-
-    // Optimize scroll events
-    const optimizedScroll = debounce(updateActiveNavLink, 100);
-    window.addEventListener('scroll', optimizedScroll);
-
-    // ===== Initialize all functions =====
-    console.log('All JavaScript functions initialized successfully');
-});
-
-// ===== Service Worker for PWA (Optional) =====
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function() {
-        navigator.serviceWorker.register('/sw.js').then(function(registration) {
-            console.log('ServiceWorker registration successful with scope: ', registration.scope);
-        }, function(err) {
-            console.log('ServiceWorker registration failed: ', err);
+    // ---- IMAGE ERROR ----
+    document.querySelectorAll('img').forEach(function(img) {
+        img.addEventListener('error', function() {
+            if (this.classList.contains('logo') || this.classList.contains('hero-logo')) {
+                this.src = 'images/logo/flexia-logo.png';
+            } else if (this.classList.contains('avatar')) {
+                const name = this.alt.split(' ')[0] || 'User';
+                this.src = 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + encodeURIComponent(name);
+            }
         });
     });
-}
 
-// ===== Add CSS for notifications =====
-const notificationCSS = `
-    .notification {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 16px 20px;
-        background: #1A1A2E;
-        border-left: 4px solid #6C63FF;
-        border-radius: 8px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        z-index: 9999;
-        transform: translateX(120%);
-        transition: transform 0.3s ease;
-        max-width: 400px;
-    }
-    
-    .notification.show {
-        transform: translateX(0);
-    }
-    
-    .notification-success {
-        border-left-color: #00D4AA;
-    }
-    
-    .notification-error {
-        border-left-color: #FF6584;
-    }
-    
-    .notification i {
-        font-size: 20px;
-    }
-    
-    .notification-success i {
-        color: #00D4AA;
-    }
-    
-    .notification-error i {
-        color: #FF6584;
-    }
-    
-    .notification span {
-        color: white;
-        flex: 1;
-    }
-    
-    .notification-close {
-        background: none;
-        border: none;
-        color: #8A8AA3;
-        cursor: pointer;
-        padding: 4px;
-        font-size: 14px;
-        transition: color 0.3s ease;
-    }
-    
-    .notification-close:hover {
-        color: white;
-    }
-`;
+    console.log('Flexia Premium NG – Premium Grid + Animated Hamburger ready');
 
-// Inject notification CSS
-const style = document.createElement('style');
-style.textContent = notificationCSS;
-document.head.appendChild(style);
+});
